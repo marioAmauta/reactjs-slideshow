@@ -72,14 +72,14 @@ export default function Slideshow() {
           </SlideText>
         </Slide>
       </SlideshowContainer>
-      <Controls>
+      <ControlsContainer>
         <ArrowButton>
           <LeftArrow />
         </ArrowButton>
-        <ArrowButton>
+        <ArrowButton right>
           <RightArrow />
         </ArrowButton>
-      </Controls>
+      </ControlsContainer>
     </MainContainer>
   );
 }
@@ -94,12 +94,12 @@ const SlideshowContainer = styled.div`
 `;
 
 const Slide = styled.div`
-  position: relative;
   min-width: 100%;
-  max-hight: 500px;
   overflow: hidden;
   transition: 0.3s ease all;
-  z-index: 9;
+  z-index: 10;
+  max-hight: 500px;
+  position: relative;
 
   img {
     width: 100%;
@@ -108,13 +108,13 @@ const Slide = styled.div`
 `;
 
 const SlideText = styled.div`
-  position: absolute;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  background: ${({ textBackground }) => (textBackground ? textBackground : 'rgba(0, 0, 0, 0.5)')};
+  color: ${({ textColor }) => (textColor ? textColor : '#fff')};
   width: 100%;
   padding: 10px 60px;
   text-align: center;
+  position: absolute;
+  bottom: 0;
 
   @media screen and (max-width: 700px) {
     position: relative;
@@ -122,13 +122,36 @@ const SlideText = styled.div`
   }
 `;
 
-const Controls = styled.div`
+const ControlsContainer = styled.div`
   position: absolute;
   top: 0;
-  z-index: 10;
-  height: 100%;
+  z-index: 20;
   width: 100%;
+  height: 100%;
   pointer-events: none;
 `;
 
-const ArrowButton = styled.button``;
+const ArrowButton = styled.button`
+  pointer-events: all;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  width: 50px;
+  height: 100%;
+  text-align: center;
+  position: absolute;
+  transition: 0.3s ease all;
+
+  &:hover {
+    path {
+      fill: #fff;
+    }
+  }
+
+  path {
+    filter: ${({ right }) => (right ? 'drop-shadow(-2px 0px 0px #fff) ' : 'drop-shadow(2px 0px 0px #fff)')};
+  }
+
+  ${({ right }) => (right ? 'right: 0' : 'left: 0')}
+`;
