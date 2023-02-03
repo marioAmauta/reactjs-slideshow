@@ -1,25 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import './styles.css';
+import React from 'react';
+import Slideshow from './components/Slideshow';
+import styled from 'styled-components';
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main>
+      <Title>Productos destacados</Title>
+      <Slideshow />
+    </main>
   );
 }
 
-export default App;
+const Title = styled.h2`
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+`;
