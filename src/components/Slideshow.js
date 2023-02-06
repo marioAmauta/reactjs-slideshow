@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import img1 from '../img/1.jpg';
 import img2 from '../img/2.jpg';
 import img3 from '../img/3.jpg';
@@ -8,9 +8,57 @@ import { ReactComponent as RightArrow } from '../img/iconmonstr-angel-right-thin
 import styled from 'styled-components';
 
 export default function Slideshow() {
+  const slideshowContainerRef = useRef(null);
+
+  function previous() {
+    if (slideshowContainerRef.current.children.length > 0) {
+      console.log('previous');
+
+      const index = slideshowContainerRef.current.children.length - 1;
+      const lastElement = slideshowContainerRef.current.children[index];
+
+      slideshowContainerRef.current.insertBefore(lastElement, slideshowContainerRef.current.firstChild);
+
+      slideshowContainerRef.current.style.transition = 'none';
+
+      const slideSize = slideshowContainerRef.current.children[0].offsetWidth;
+
+      slideshowContainerRef.current.style.transform = `translateX(-${slideSize}px)`;
+
+      setTimeout(() => {
+        slideshowContainerRef.current.style.transition = '500ms ease-out all';
+        slideshowContainerRef.current.style.transform = `translateX(0px)`;
+      }, 30);
+    }
+  }
+
+  function next() {
+    if (slideshowContainerRef.current.children.length > 0) {
+      console.log('next');
+
+      const firstElement = slideshowContainerRef.current.children[0];
+
+      slideshowContainerRef.current.style.transition = `500ms ease-out all`;
+
+      const slideSize = slideshowContainerRef.current.children[0].offsetWidth;
+
+      slideshowContainerRef.current.style.transform = `translateX(-${slideSize}px)`;
+
+      function transitionReset() {
+        slideshowContainerRef.current.style.transition = 'none';
+        slideshowContainerRef.current.style.transform = 'translateX(0)';
+
+        slideshowContainerRef.current.appendChild(firstElement);
+        slideshowContainerRef.current.removeEventListener('transitionend', transitionReset);
+      }
+
+      slideshowContainerRef.current.addEventListener('transitionend', transitionReset);
+    }
+  }
+
   return (
     <MainContainer>
-      <SlideshowContainer>
+      <SlideshowContainer ref={slideshowContainerRef}>
         <Slide>
           <a
             href='https://www.falconmasters.com'
@@ -73,10 +121,13 @@ export default function Slideshow() {
         </Slide>
       </SlideshowContainer>
       <ControlsContainer>
-        <ArrowButton>
+        <ArrowButton onClick={previous}>
           <LeftArrow />
         </ArrowButton>
-        <ArrowButton right>
+        <ArrowButton
+          right
+          onClick={next}
+        >
           <RightArrow />
         </ArrowButton>
       </ControlsContainer>
