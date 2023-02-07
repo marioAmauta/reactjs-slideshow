@@ -1,14 +1,11 @@
-import React, { useRef } from 'react';
-import img1 from '../img/1.jpg';
-import img2 from '../img/2.jpg';
-import img3 from '../img/3.jpg';
-import img4 from '../img/4.jpg';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { ReactComponent as LeftArrow } from '../img/iconmonstr-angel-left-thin.svg';
 import { ReactComponent as RightArrow } from '../img/iconmonstr-angel-right-thin.svg';
 import styled from 'styled-components';
 
-export default function Slideshow() {
+function Slideshow({ children, controls = false, autoplay = false, slideAnimationSpeed = 1000, intervalTime = 2000 }) {
   const slideshowContainerRef = useRef(null);
+  const slideshowInterval = useRef(null);
 
   function previous() {
     if (slideshowContainerRef.current.children.length > 0) {
@@ -18,7 +15,6 @@ export default function Slideshow() {
       const lastElement = slideshowContainerRef.current.children[index];
 
       slideshowContainerRef.current.insertBefore(lastElement, slideshowContainerRef.current.firstChild);
-
       slideshowContainerRef.current.style.transition = 'none';
 
       const slideSize = slideshowContainerRef.current.children[0].offsetWidth;
@@ -26,19 +22,19 @@ export default function Slideshow() {
       slideshowContainerRef.current.style.transform = `translateX(-${slideSize}px)`;
 
       setTimeout(() => {
-        slideshowContainerRef.current.style.transition = '500ms ease-out all';
+        slideshowContainerRef.current.style.transition = `${slideAnimationSpeed}ms ease-out all`;
         slideshowContainerRef.current.style.transform = `translateX(0px)`;
       }, 30);
     }
   }
 
-  function next() {
+  const next = useCallback(() => {
     if (slideshowContainerRef.current.children.length > 0) {
       console.log('next');
 
       const firstElement = slideshowContainerRef.current.children[0];
 
-      slideshowContainerRef.current.style.transition = `500ms ease-out all`;
+      slideshowContainerRef.current.style.transition = `${slideAnimationSpeed}ms ease-out all`;
 
       const slideSize = slideshowContainerRef.current.children[0].offsetWidth;
 
@@ -54,83 +50,42 @@ export default function Slideshow() {
 
       slideshowContainerRef.current.addEventListener('transitionend', transitionReset);
     }
-  }
+  }, [slideAnimationSpeed]);
+
+  useEffect(() => {
+    if (autoplay) {
+      slideshowInterval.current = setInterval(() => {
+        next();
+      }, intervalTime);
+
+      slideshowContainerRef.current.addEventListener('mouseenter', () => {
+        clearInterval(slideshowInterval.current);
+      });
+
+      slideshowContainerRef.current.addEventListener('mouseleave', () => {
+        slideshowInterval.current = setInterval(() => {
+          next();
+        }, intervalTime);
+      });
+    }
+  }, [autoplay, intervalTime, next]);
 
   return (
     <MainContainer>
-      <SlideshowContainer ref={slideshowContainerRef}>
-        <Slide>
-          <a
-            href='https://www.falconmasters.com'
-            target='_blank'
-            rel='noopener noreferrer'
+      <SlideshowContainer ref={slideshowContainerRef}>{children}</SlideshowContainer>
+      {controls && (
+        <ControlsContainer>
+          <ArrowButton onClick={previous}>
+            <LeftArrow />
+          </ArrowButton>
+          <ArrowButton
+            right
+            onClick={next}
           >
-            <img
-              src={img1}
-              alt='slide'
-            />
-          </a>
-          <SlideText>
-            <p>15% discount on Apple products</p>
-          </SlideText>
-        </Slide>
-        <Slide>
-          <a
-            href='https://www.falconmasters.com'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            <img
-              src={img2}
-              alt='slide'
-            />
-          </a>
-          <SlideText>
-            <p>15% discount on Apple products</p>
-          </SlideText>
-        </Slide>
-        <Slide>
-          <a
-            href='https://www.falconmasters.com'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            <img
-              src={img3}
-              alt='slide'
-            />
-          </a>
-          <SlideText>
-            <p>15% discount on Apple products</p>
-          </SlideText>
-        </Slide>
-        <Slide>
-          <a
-            href='https://www.falconmasters.com'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            <img
-              src={img4}
-              alt='slide'
-            />
-          </a>
-          <SlideText>
-            <p>15% discount on Apple products</p>
-          </SlideText>
-        </Slide>
-      </SlideshowContainer>
-      <ControlsContainer>
-        <ArrowButton onClick={previous}>
-          <LeftArrow />
-        </ArrowButton>
-        <ArrowButton
-          right
-          onClick={next}
-        >
-          <RightArrow />
-        </ArrowButton>
-      </ControlsContainer>
+            <RightArrow />
+          </ArrowButton>
+        </ControlsContainer>
+      )}
     </MainContainer>
   );
 }
@@ -206,3 +161,5 @@ const ArrowButton = styled.button`
 
   ${({ right }) => (right ? 'right: 0' : 'left: 0')}
 `;
+
+export { Slideshow, Slide, SlideText };
